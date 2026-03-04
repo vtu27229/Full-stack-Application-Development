@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+    <style>
+        body { font-family: Arial; background: #f2f2f2; }
+        .container { width: 90%; margin: 30px auto; }
+        button, select {
+            padding: 8px;
+            margin: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            border: 1px solid gray;
+            padding: 8px;
+            text-align: center;
+        }
+        th { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Student Dashboard</h2>
+
+    <button onclick="loadStudents()">Load All</button>
+    <button onclick="sortByName()">Sort by Name</button>
+    <button onclick="sortByDob()">Sort by DOB</button>
+
+    <select id="deptFilter" onchange="filterDepartment()">
+        <option value="">Filter by Department</option>
+        <option value="CSE">CSE</option>
+        <option value="ECE">ECE</option>
+        <option value="IT">IT</option>
+    </select>
+
+    <button onclick="countDepartment()">Count Per Department</button>
+
+    <h3 id="countResult"></h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>DOB</th>
+                <th>Department</th>
+                <th>Phone</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<script>
+const baseUrl = "http://localhost:8080/students";
+
+function loadStudents() {
+    fetch(baseUrl)
+        .then(res => res.json())
+        .then(data => displayData(data));
+}
+
+function sortByName() {
+    fetch(baseUrl + "/sort/name")
+        .then(res => res.json())
+        .then(data => displayData(data));
+}
+
+function sortByDob() {
+    fetch(baseUrl + "/sort/dob")
+        .then(res => res.json())
+        .then(data => displayData(data));
+}
+
+function filterDepartment() {
+    const dept = document.getElementById("deptFilter").value;
+    if(dept === "") return;
+    fetch(baseUrl + "/department/" + dept)
+        .then(res => res.json())
+        .then(data => displayData(data));
+}
+
+function countDepartment() {
+    fetch(baseUrl + "/count")
+        .then(res => res.json())
+        .then(data => {
+            let result = "";
+            for (let dept in data) {
+                result += dept + ": " + data[dept] + " | ";
+            }
+            document.getElementById("countResult").innerText = result;
+        });
+}
+
+function displayData(data) {
+    let rows = "";
+    data.forEach(student => {
+        rows += `
+            <tr>
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.email}</td>
+                <td>${student.dob}</td>
+                <td>${student.department}</td>
+                <td>${student.phone}</td>
+            </tr>
+        `;
+    });
+    document.getElementById("tableBody").innerHTML = rows;
+}
+</script>
+
+</body>
+</html>
