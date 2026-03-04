@@ -1,0 +1,145 @@
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.*;
+import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+
+@SpringBootApplication
+@RestController
+@CrossOrigin
+public class LoginApplication {
+
+    @Autowired
+    private UserRepository repository;
+
+    public static void main(String[] args) {
+        SpringApplication.run(LoginApplication.class, args);
+    }
+
+    // Serve HTML Login Page
+    @GetMapping("/")
+    public String loginPage() {
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Login System</title>
+            <style>
+                body { font-family: Arial; background:#f2f2f2; }
+                .box {
+                    width:350px;
+                    margin:100px auto;
+                    padding:20px;
+                    background:white;
+                    box-shadow:0 0 10px gray;
+                    border-radius:8px;
+                }
+                input {
+                    width:100%;
+                    padding:8px;
+                    margin:8px 0;
+                }
+                button {
+                    width:100%;
+                    padding:10px;
+                    background:blue;
+                    color:white;
+                    border:none;
+                    cursor:pointer;
+                }
+                .error { color:red; }
+                .success { color:green; }
+            </style>
+        </head>
+        <body>
+        <div class="box">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <p id="message"></p>
+        </div>
+
+        <script>
+        function login() {
+
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            let message = document.getElementById("message");
+
+            // JavaScript Validation
+            if(username === "" || password === ""){
+                message.innerHTML = "All fields are required!";
+                message.className = "error";
+                return;
+            }
+
+            fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            })
+            .then(res => res.text())
+            .then(data => {
+                if(data.includes("Success")){
+                    message.innerHTML = data;
+                    message.className = "success";
+                } else {
+                    message.innerHTML = data;
+                    message.className = "error";
+                }
+            });
+        }
+        </script>
+        </body>
+        </html>
+        """;
+    }
+
+    // Login API
+    @PostMapping("/login")
+    public String login(@RequestBody User user) {
+
+        Optional<User> existing =
+                repository.findByUsernameAndPassword(
+                        user.getUsername(),
+                        user.getPassword()
+                );
+
+        if(existing.isPresent()) {
+            return "Login Successful!";
+        } else {
+            return "Invalid Username or Password!";
+        }
+    }
+}
+
+// Entity (Auto Creates Table = SQL Included)
+@Entity
+class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    private String username;
+    private String password;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+}
+
+// Repository
+interface UserRepository extends JpaRepository<User, Integer> {
+    Optional<User> findByUsernameAndPassword(String username, String password);
+}
