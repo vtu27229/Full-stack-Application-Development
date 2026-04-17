@@ -1,0 +1,103 @@
+```java id="9j8x0y"
+/* ================= ENTITY ================= */
+package com.app;
+import jakarta.persistence.*;
+
+@Entity
+@Table(name="student")
+public class Student {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    private String name;
+    private String dept;
+
+    // getters setters
+    public int getId(){return id;}
+    public void setId(int id){this.id=id;}
+    public String getName(){return name;}
+    public void setName(String n){this.name=n;}
+    public String getDept(){return dept;}
+    public void setDept(String d){this.dept=d;}
+}
+
+/* ================= REPOSITORY ================= */
+package com.app;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface StudentRepo extends JpaRepository<Student,Integer>{}
+
+/* ================= SERVICE ================= */
+package com.app;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.*;
+
+@Service
+public class StudentService {
+
+    @Autowired
+    StudentRepo repo;
+
+    public Student save(Student s){
+        return repo.save(s);
+    }
+
+    public List<Student> getAll(){
+        return repo.findAll();
+    }
+
+    public void delete(int id){
+        repo.deleteById(id);
+    }
+}
+
+/* ================= CONTROLLER ================= */
+package com.app;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+
+@RestController
+@RequestMapping("/student")
+public class StudentController {
+
+    @Autowired
+    StudentService service;
+
+    @PostMapping("/add")
+    public Student add(@RequestBody Student s){
+        return service.save(s);
+    }
+
+    @GetMapping("/all")
+    public List<Student> all(){
+        return service.getAll();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public String delete(@PathVariable int id){
+        service.delete(id);
+        return "Deleted";
+    }
+}
+
+/* ================= APPLICATION ================= */
+package com.app;
+import org.springframework.boot.*;
+import org.springframework.boot.autoconfigure.*;
+
+@SpringBootApplication
+public class App {
+ public static void main(String[] args){
+  SpringApplication.run(App.class,args);
+ }
+}
+
+/* ================= application.properties ================= */
+/*
+spring.datasource.url=jdbc:mysql://localhost:3306/college
+spring.datasource.username=root
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+*/
+```
