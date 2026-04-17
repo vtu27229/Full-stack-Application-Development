@@ -1,0 +1,39 @@
+```java
+// Entity
+@Entity
+class User {
+ @Id @GeneratedValue int id;
+ String username;
+ String password;
+}
+
+// Repo
+interface UserRepo extends JpaRepository<User,Integer>{
+ User findByUsernameAndPassword(String u,String p);
+}
+
+// Controller
+@Controller
+class LoginController{
+ @Autowired UserRepo repo;
+
+ @GetMapping("/")
+ String loginPage(){ return "login"; }
+
+ @PostMapping("/login")
+ String login(String username,String password,Model m){
+  User u=repo.findByUsernameAndPassword(username,password);
+  if(u!=null) return "success";
+  m.addAttribute("msg","Invalid");
+  return "login";
+ }
+}
+
+/* login.html */
+<form action="/login" method="post">
+<input name="username">
+<input name="password">
+<button>Login</button>
+<p th:text="${msg}"></p>
+</form>
+```
