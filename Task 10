@@ -1,0 +1,49 @@
+```java
+/* ================= CONTROLLER ================= */
+package com.app;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class EmployeeController {
+
+    @GetMapping("/emp")
+    public String showForm(){
+        return "emp";
+    }
+
+    @PostMapping("/emp")
+    public String display(@RequestParam String name, Model model){
+        model.addAttribute("name",name);
+        return "result";
+    }
+}
+
+/* ================= emp.html ================= */
+/*
+<form action="/emp" method="post">
+<input name="name">
+<button>Submit</button>
+</form>
+*/
+
+/* ================= result.html ================= */
+/*
+<h2 th:text="'Welcome '+${name}"></h2>
+*/
+
+/* ================= APPLICATION ================= */
+package com.app;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class App {
+    public static void main(String[] args){
+        SpringApplication.run(App.class,args);
+    }
+}
+```
