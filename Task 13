@@ -1,0 +1,92 @@
+```java id="7d0l5k"
+/* ===================== SERVICE A ===================== */
+/* Project: service-a */
+
+package com.servicea;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+
+@SpringBootApplication
+@RestController
+@RequestMapping("/api/a")
+public class ServiceAApplication {
+
+    private static List<String> dataList = new ArrayList<>();
+
+    public static void main(String[] args) {
+        SpringApplication.run(ServiceAApplication.class, args);
+    }
+
+    @GetMapping("/data")
+    public List<String> getAllData() {
+        return dataList;
+    }
+
+    @PostMapping("/add")
+    public String addData(@RequestBody String data) {
+        dataList.add(data);
+        return "Data added to Service A";
+    }
+
+    @GetMapping("/info")
+    public String info() {
+        return "Service A is running successfully";
+    }
+}
+
+/* application.properties */
+/*
+server.port=8081
+spring.application.name=SERVICE-A
+*/
+
+
+/* ===================== SERVICE B ===================== */
+/* Project: service-b */
+
+package com.serviceb;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
+
+@SpringBootApplication
+@RestController
+@RequestMapping("/api/b")
+public class ServiceBApplication {
+
+    @Autowired
+    RestTemplate restTemplate;
+
+    public static void main(String[] args) {
+        SpringApplication.run(ServiceBApplication.class, args);
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @GetMapping("/callA")
+    public Object callServiceA() {
+        return restTemplate.getForObject("http://localhost:8081/api/a/data", Object.class);
+    }
+
+    @GetMapping("/status")
+    public String status() {
+        return "Service B is active";
+    }
+}
+
+/* application.properties */
+/*
+server.port=8082
+spring.application.name=SERVICE-B
+*/
+```
