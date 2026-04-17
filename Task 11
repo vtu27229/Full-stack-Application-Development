@@ -1,0 +1,30 @@
+```java id="4fjkq2"
+package com.app;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.repository.*;
+import java.util.*;
+
+/* ================= REPOSITORY ================= */
+public interface StudentRepo extends JpaRepository<Student,Integer>{
+    List<Student> findByDept(String dept);
+}
+
+/* ================= CONTROLLER ================= */
+@RestController
+@RequestMapping("/filter")
+public class FilterController {
+
+    @Autowired
+    StudentRepo repo;
+
+    @GetMapping("/dept/{d}")
+    public List<Student> byDept(@PathVariable String d){
+        return repo.findByDept(d);
+    }
+
+    @GetMapping("/page")
+    public Page<Student> page(){
+        return repo.findAll(PageRequest.of(0,5));
+    }
+}
+```
