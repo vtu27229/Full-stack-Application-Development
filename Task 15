@@ -1,0 +1,29 @@
+```yaml id="3n8g1d"
+# ===================== API GATEWAY =====================
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: API-GATEWAY
+
+  cloud:
+    gateway:
+      routes:
+
+        - id: service-a-route
+          uri: lb://SERVICE-A
+          predicates:
+            - Path=/a/**
+
+        - id: service-b-route
+          uri: lb://SERVICE-B
+          predicates:
+            - Path=/b/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+```
