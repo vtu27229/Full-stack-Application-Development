@@ -1,0 +1,88 @@
+```html
+<!-- dashboard.php -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Dashboard</title>
+  <style>
+    body { font-family: Arial; background: #eef; text-align: center; }
+    table { margin: auto; border-collapse: collapse; width: 80%; }
+    th, td { padding: 10px; border: 1px solid #333; }
+    th { background: #007bff; color: white; }
+    form { margin: 20px; }
+    select, button { padding: 8px; }
+  </style>
+</head>
+<body>
+
+<h2>Student Dashboard</h2>
+
+<form method="GET">
+  Sort By:
+  <select name="sort">
+    <option value="name">Name</option>
+    <option value="dob">DOB</option>
+  </select>
+
+  Department:
+  <select name="dept">
+    <option value="">All</option>
+    <option value="CSE">CSE</option>
+    <option value="ECE">ECE</option>
+    <option value="IT">IT</option>
+  </select>
+
+  <button type="submit">Apply</button>
+</form>
+
+<?php
+$conn = new mysqli("localhost","root","","college");
+
+$sort = isset($_GET['sort']) ? $_GET['sort'] : "name";
+$dept = isset($_GET['dept']) ? $_GET['dept'] : "";
+
+$sql = "SELECT * FROM students";
+
+if($dept != "") {
+  $sql .= " WHERE department='$dept'";
+}
+
+$sql .= " ORDER BY $sort";
+
+$result = $conn->query($sql);
+
+echo "<table>
+<tr><th>ID</th><th>Name</th><th>Email</th><th>DOB</th><th>Dept</th></tr>";
+
+while($row = $result->fetch_assoc()) {
+  echo "<tr>
+  <td>{$row['id']}</td>
+  <td>{$row['name']}</td>
+  <td>{$row['email']}</td>
+  <td>{$row['dob']}</td>
+  <td>{$row['department']}</td>
+  </tr>";
+}
+
+echo "</table>";
+
+// Count per department
+$countQuery = "SELECT department, COUNT(*) as total FROM students GROUP BY department";
+$countResult = $conn->query($countQuery);
+
+echo "<h3>Department Count</h3>";
+while($row = $countResult->fetch_assoc()) {
+  echo $row['department']." : ".$row['total']."<br>";
+}
+
+$conn->close();
+?>
+
+</body>
+</html>
+
+/* SQL (already from Task 1)
+SELECT * FROM students ORDER BY name;
+SELECT department, COUNT(*) FROM students GROUP BY department;
+*/
+```
