@@ -1,0 +1,35 @@
+```java id="7m1p3r"
+import jakarta.validation.constraints.*;
+
+/* ================= ENTITY ================= */
+@Entity
+class Product{
+ @Id @GeneratedValue int id;
+
+ @NotBlank(message="Name required")
+ String name;
+
+ @Min(value=1,message="Price must be >0")
+ double price;
+}
+
+/* ================= CONTROLLER ================= */
+@RestController
+class C{
+
+ @PostMapping("/add")
+ public Product add(@Valid @RequestBody Product p){
+  return p;
+ }
+}
+
+/* ================= GLOBAL EXCEPTION ================= */
+@ControllerAdvice
+class GlobalHandler{
+
+ @ExceptionHandler(Exception.class)
+ public String handle(Exception e){
+  return "Error: "+e.getMessage();
+ }
+}
+```
