@@ -1,0 +1,32 @@
+```java
+@Entity class Customer{ @Id @GeneratedValue int id; String name; }
+@Entity class Product{ @Id @GeneratedValue int id; String product; }
+
+@Entity
+class Orders{
+ @Id @GeneratedValue int id;
+ int amount;
+ @ManyToOne Customer customer;
+ @ManyToOne Product product;
+}
+
+interface OrderRepo extends JpaRepository<Orders,Integer>{}
+
+@Controller
+class OrderController{
+ @Autowired OrderRepo repo;
+
+ @GetMapping("/orders")
+ String show(Model m){
+  m.addAttribute("list",repo.findAll());
+  return "orders";
+ }
+}
+
+/* orders.html */
+<tr th:each="o:${list}">
+<td th:text="${o.customer.name}"></td>
+<td th:text="${o.product.product}"></td>
+<td th:text="${o.amount}"></td>
+</tr>
+```
