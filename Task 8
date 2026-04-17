@@ -1,0 +1,49 @@
+```java
+package com.app;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.Component;
+
+/* ================= COMPONENT ================= */
+@Component
+class Employee {
+    private String name="Raja";
+
+    public String getName(){
+        return name;
+    }
+}
+
+/* ================= SERVICE ================= */
+@Component
+class EmployeeService {
+
+    @Autowired
+    Employee emp;
+
+    public void display(){
+        System.out.println("Employee Name: "+emp.getName());
+    }
+}
+
+/* ================= CONFIG ================= */
+@Configuration
+@ComponentScan(basePackages="com.app")
+class Config {}
+
+/* ================= MAIN ================= */
+public class MainApp {
+
+    public static void main(String[] args) {
+
+        AnnotationConfigApplicationContext ctx =
+                new AnnotationConfigApplicationContext(Config.class);
+
+        EmployeeService service = ctx.getBean(EmployeeService.class);
+        service.display();
+
+        ctx.close();
+    }
+}
+```
