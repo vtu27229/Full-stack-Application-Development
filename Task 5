@@ -1,0 +1,154 @@
+```java id="e5xv9q"
+/*
+SPRING BOOT APPLICATION - PAYMENT SYSTEM
+---------------------------------------
+Features:
+✔ UI (Thymeleaf Form)
+✔ Controller
+✔ Service (Transaction logic)
+✔ Entity + JPA
+✔ MySQL DB
+✔ @Transactional (Commit / Rollback)
+*/
+
+/* ===================== ENTITY ===================== */
+import jakarta.persistence.*;
+
+@Entity
+class Account {
+    @Id
+    private int id;
+    private double balance;
+
+    public int getId(){ return id; }
+    public void setId(int id){ this.id=id; }
+
+    public double getBalance(){ return balance; }
+    public void setBalance(double b){ this.balance=b; }
+}
+
+/* ===================== REPOSITORY ===================== */
+import org.springframework.data.jpa.repository.JpaRepository;
+
+interface AccountRepo extends JpaRepository<Account,Integer>{}
+
+/* ===================== SERVICE ===================== */
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+class PaymentService {
+
+    @Autowired
+    AccountRepo repo;
+
+    @Transactional
+    public String transfer(int from,int to,double amount){
+
+        Account sender = repo.findById(from).orElseThrow();
+        Account receiver = repo.findById(to).orElseThrow();
+
+        if(sender.getBalance() < amount){
+            throw new RuntimeException("Insufficient Balance");
+        }
+
+        sender.setBalance(sender.getBalance()-amount);
+        receiver.setBalance(receiver.getBalance()+amount);
+
+        repo.save(sender);
+        repo.save(receiver);
+
+        return "Transaction Successful";
+    }
+}
+
+/* ===================== CONTROLLER ===================== */
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+class PaymentController {
+
+    @Autowired
+    PaymentService service;
+
+    @GetMapping("/")
+    public String home(){
+        return "payment";
+    }
+
+    @PostMapping("/pay")
+    public String pay(@RequestParam int from,
+                      @RequestParam int to,
+                      @RequestParam double amount,
+                      Model model){
+        try{
+            String msg = service.transfer(from,to,amount);
+            model.addAttribute("msg",msg);
+        }catch(Exception e){
+            model.addAttribute("msg","Transaction Failed");
+        }
+        return "payment";
+    }
+}
+
+/* ===================== HTML (Thymeleaf) ===================== */
+/*
+Create file: src/main/resources/templates/payment.html
+------------------------------------------------------
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<h2>Payment Transfer</h2>
+
+<form action="/pay" method="post">
+From ID: <input name="from"><br>
+To ID: <input name="to"><br>
+Amount: <input name="amount"><br>
+<button type="submit">Pay</button>
+</form>
+
+<h3 th:text="${msg}"></h3>
+
+</body>
+</html>
+*/
+
+/* ===================== APPLICATION ===================== */
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class App {
+    public static void main(String[] args){
+        SpringApplication.run(App.class,args);
+    }
+}
+
+/* ===================== application.properties ===================== */
+/*
+spring.datasource.url=jdbc:mysql://localhost:3306/bank
+spring.datasource.username=root
+spring.datasource.password=
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+*/
+
+/* ===================== SQL ===================== */
+/*
+CREATE DATABASE bank;
+USE bank;
+
+CREATE TABLE account (
+ id INT PRIMARY KEY,
+ balance DOUBLE
+);
+
+INSERT INTO account VALUES(1,1000),(2,500);
+*/
+```
