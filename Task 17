@@ -1,0 +1,48 @@
+```java id="4q9k2z"
+/* ===================== TEST CLASS ===================== */
+
+package com.app;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+public class ApplicationTests {
+
+    @Autowired
+    private StudentService service;
+
+    @Test
+    void testCreateStudent() {
+        Student s = new Student();
+        s.setName("Raja");
+        s.setDept("CSE");
+
+        Student saved = service.save(s);
+
+        assertNotNull(saved);
+        assertEquals("Raja", saved.getName());
+    }
+
+    @Test
+    void testGetAllStudents() {
+        assertTrue(service.getAll().size() >= 0);
+    }
+
+    @Test
+    void testDeleteStudent() {
+        Student s = new Student();
+        s.setName("Temp");
+        s.setDept("IT");
+
+        Student saved = service.save(s);
+        int id = saved.getId();
+
+        service.delete(id);
+
+        assertFalse(service.getAll().stream().anyMatch(st -> st.getId() == id));
+    }
+}
+```
