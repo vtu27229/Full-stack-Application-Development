@@ -1,0 +1,83 @@
+<!-- registration.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Registration</title>
+  <style>
+    body { font-family: Arial; background: #f4f4f4; }
+    form { width: 400px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 8px; }
+    input, select { width: 100%; padding: 10px; margin: 8px 0; }
+    button { background: #28a745; color: white; padding: 10px; border: none; cursor: pointer; }
+    button:hover { background: #218838; }
+  </style>
+</head>
+<body>
+  <form action="register.php" method="POST">
+    <h2>Student Registration</h2>
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="date" name="dob" required>
+    <select name="department" required>
+      <option value="CSE">CSE</option>
+      <option value="ECE">ECE</option>
+      <option value="IT">IT</option>
+    </select>
+    <input type="text" name="phone" placeholder="Phone" required>
+    <button type="submit">Register</button>
+  </form>
+</body>
+</html>
+
+<?php
+// register.php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "college";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Insert data into students table
+$sql = "INSERT INTO students (name, email, dob, department, phone)
+VALUES ('".$_POST['name']."','".$_POST['email']."','".$_POST['dob']."','".$_POST['department']."','".$_POST['phone']."')";
+
+if ($conn->query($sql) === TRUE) {
+    echo "Registration successful!";
+} else {
+    echo "Error: " . $conn->error;
+}
+
+// Retrieve data
+$result = $conn->query("SELECT * FROM students");
+if ($result->num_rows > 0) {
+    echo "<h3>Registered Students</h3><table border='1'><tr><th>ID</th><th>Name</th><th>Email</th><th>DOB</th><th>Department</th><th>Phone</th></tr>";
+    while($row = $result->fetch_assoc()) {
+        echo "<tr><td>".$row["id"]."</td><td>".$row["name"]."</td><td>".$row["email"]."</td><td>".$row["dob"]."</td><td>".$row["department"]."</td><td>".$row["phone"]."</td></tr>";
+    }
+    echo "</table>";
+} else {
+    echo "No students found.";
+}
+
+$conn->close();
+?>
+
+/* SQL Setup (run in MySQL before using the form)
+CREATE DATABASE college;
+USE college;
+
+CREATE TABLE students (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  dob DATE,
+  department VARCHAR(50),
+  phone VARCHAR(15)
+);
+*/
