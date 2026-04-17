@@ -1,0 +1,60 @@
+```java
+/* ================= CONTROLLER ================= */
+package com.app;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class FormController {
+
+    @GetMapping("/")
+    public String form(){
+        return "form";
+    }
+
+    @PostMapping("/submit")
+    public String submit(@RequestParam String name){
+        return "success";
+    }
+}
+
+/* ================= HTML (form.html) ================= */
+/*
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<script>
+function validate(){
+ let n=document.getElementById("name").value;
+ if(n==""){
+  alert("Name required");
+  return false;
+ }
+ return true;
+}
+
+function typing(){
+ console.log("Typing...");
+}
+</script>
+</head>
+
+<body>
+
+<h2>Feedback Form</h2>
+
+<form action="/submit" method="post" onsubmit="return validate()">
+<input id="name" name="name" onkeypress="typing()"><br>
+<button ondblclick="alert('Submitted')">Submit</button>
+</form>
+
+</body>
+</html>
+*/
+
+/* ================= success.html ================= */
+/*
+<h2>Form Submitted Successfully</h2>
+*/
+```
